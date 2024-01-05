@@ -1,8 +1,10 @@
 package routes
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"fmt"
 	"gitleet/services"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func SubmissionRoute(app fiber.Router, h *Handlers) {
@@ -20,20 +22,21 @@ func (h *Handlers) PushLatest(ctx *fiber.Ctx) error {
 		})
 	}
 
-	code, err := services.GetCode(submissions[0].Id)
-
-	if err != nil {
-		h.Logger.Println(err)
-		return ctx.Status(400).JSON(fiber.Map{
-			"error": err.Error(),
-		})
+	for _, s := range submissions {
+		submissionDetail, err := services.GetCode(s.Id)
+		if err != nil {
+			h.Logger.Println(err)
+			return ctx.Status(400).JSON(fiber.Map{
+				"error": err.Error(),
+			})
+		}
+		fmt.Println(submissionDetail.Question.QuestionTitle)
+		err = services.PushToGithub(submissionDetail)
+		if err != nil {
+			return ctx.Status(400).JSON(fiber.Map{
+				"error": err.Error(),
+			})
+		}
 	}
-
-	err = services.PushToGithub(code)
-	if err != nil {
-		return ctx.Status(400).JSON(fiber.Map{
-			"error": err.Error(),
-		})
-	}
-	return ctx.Status(200).JSON(code)
+	return ctx.SendStatus(200)
 }

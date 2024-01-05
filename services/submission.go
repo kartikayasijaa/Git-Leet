@@ -21,9 +21,9 @@ func GetRecentSubmission(userId string) ([]leetcodeapi.AcSubmission, error) {
 		return nil, err
 	}
 
-	prevSubmissions := 500
+	prevSubmissions := 450
 	newSubmission := totalSubmissions - prevSubmissions
-	if newSubmission == 0 {
+	if newSubmission <= 0 {
 		return nil, errors.New("No new submissions found")
 	}
 
@@ -36,10 +36,10 @@ func GetRecentSubmission(userId string) ([]leetcodeapi.AcSubmission, error) {
 	return recentSubmissions, nil
 }
 
-func GetCode(submissionId string) (string, error) {
+func GetCode(submissionId string) (structs.SubmissionDetails, error) {
 	var responseBody structs.SubmissionDetailsResponse
 	payload := `{
-		"query": "query submissionDetails($submissionId: Int!) { submissionDetails(submissionId: $submissionId) {  code timestamp statusCode lang { name verboseName } question { questionId titleSlug hasFrontendPreview } topicTags { tagId slug name } } }",
+		"query": "query submissionDetails($submissionId: Int!) { submissionDetails(submissionId: $submissionId) {  code timestamp statusCode lang { name verboseName } question { questionId questionTitle } topicTags { tagId slug name } } }",
 		"variables": {
 			"submissionId": "` + submissionId + `"
 		}
@@ -47,19 +47,19 @@ func GetCode(submissionId string) (string, error) {
 
 	session := os.Getenv("SESSION")
 	if len(session) == 0 {
-		return "", errors.New("No Session Key")
+		return structs.SubmissionDetails{}, errors.New("No Session Key")
 	}
 
 	leetcodeapi.SetCredentials(session, "f")
 	err := (&leetcodeapi.Util{}).MakeGraphQLRequest(payload, &responseBody)
 	leetcodeapi.RemoveCredentials()
 	if err != nil {
-		return "", err
+		return structs.SubmissionDetails{}, err
 	}
 	code := responseBody.Data.SubmissionDetails.Code
 
 	if len(code) == 0 {
-		return "", errors.New("No cookie")
+		return structs.SubmissionDetails{}, errors.New("No cookie")
 	}
-	return responseBody.Data.SubmissionDetails.Code, nil
+	return responseBody.Data.SubmissionDetails, nil
 }
