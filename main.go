@@ -30,6 +30,7 @@ func main() {
 
 	api := app.Group("/api")
 	routes.SubmissionRoute(api, h)
+	routes.AuthRoutes(api, h)
 
 
 	PORT := os.Getenv("PORT")
