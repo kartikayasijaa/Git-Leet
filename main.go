@@ -2,26 +2,28 @@ package main
 
 import (
 	"fmt"
+	"gitleet/config"
 	"gitleet/routes"
-	"gitleet/utils"
+	"gitleet/services"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
-
 func main() {
-	logger := utils.InitLogger()
-	h := routes.NewHandlers(logger)
+
+	logger := config.InitLogger()
+	db, ctx := config.InitDB()
+
+	dbServices := services.DBServicesHandler(db, ctx)
+	h := routes.NewHandlers(logger, db, ctx, dbServices)
 
 	app := fiber.New()
-
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
+		AllowOrigins:     "*",
 		AllowCredentials: true,
 	}))
-
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.Status(200).JSON(fiber.Map{
 			"message": "Running",
@@ -31,7 +33,6 @@ func main() {
 	api := app.Group("/api")
 	routes.SubmissionRoute(api, h)
 	routes.AuthRoutes(api, h)
-
 
 	PORT := os.Getenv("PORT")
 	err := app.Listen(fmt.Sprintf(":%s", PORT))
