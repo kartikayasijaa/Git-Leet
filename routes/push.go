@@ -1,9 +1,7 @@
 package routes
 
 import (
-	"fmt"
 	"gitleet/services"
-
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -30,7 +28,6 @@ func (h *Handlers) PushLatest(ctx *fiber.Ctx) error {
 				"error": err.Error(),
 			})
 		}
-		fmt.Println(submissionDetail.Question.QuestionTitle)
 		err = services.PushToGithub(submissionDetail)
 		if err != nil {
 			return ctx.Status(400).JSON(fiber.Map{
