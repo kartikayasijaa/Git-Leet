@@ -1,16 +1,15 @@
 package routes
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/go-github/github"
 )
 
 func AuthRoutes(app fiber.Router, h *Handlers) {
-	auth := NewAuthHandlers(h.Logger)
-
+	auth := NewAuthHandlers(h.Logger, h.Db, h.Context, h.DBServices)
 	authRoute := app.Group("/auth")
 	authRoute.Get("/github", auth.StartGithubOAuth)
 	authRoute.Get("/callback", auth.CompleteGithubOAuth)
@@ -34,9 +33,18 @@ func (h *AuthHandlers) CompleteGithubOAuth(ctx *fiber.Ctx) error {
 		return ctx.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	//TODO
-	// do sometihing with token
-	fmt.Println(token)
+	// get user details
+	client := github.NewClient(h.githubOauthConfig.Client(ctx.Context(), token))
+	githubUser, _, err := client.Users.Get(ctx.Context(), "")
+	if err != nil {
+		return ctx.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	_, err = h.DBServices.CreateOrUpdateUser(githubUser)
+	if err != nil {
+		return ctx.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+
 	ctx.Cookie(&fiber.Cookie{
 		Name:     "token",
 		Value:    token.AccessToken,
