@@ -11,38 +11,37 @@ import (
 	"gorm.io/gorm"
 )
 
-
-//Controller Handlers
+// Controller Handlers
 type Handlers struct {
-	Logger     *log.Logger
-	Db         *gorm.DB
-	Context    context.Context
-	DBServices *services.DBServices
+	Logger   *log.Logger
+	Db       *gorm.DB
+	Context  context.Context
+	Services *services.Services
 }
-func NewHandlers(logger *log.Logger, db *gorm.DB, ctx context.Context, dbService *services.DBServices) *Handlers {
+
+func NewHandlers(logger *log.Logger, db *gorm.DB, ctx context.Context, services *services.Services) *Handlers {
 	return &Handlers{
-		Logger:     logger,
-		Db:         db,
-		Context:    ctx,
-		DBServices: dbService,
+		Logger:   logger,
+		Db:       db,
+		Context:  ctx,
+		Services: services,
 	}
 }
 
-
-//Auth Controllers
+// Auth Controllers
 type AuthHandlers struct {
 	Handlers
 	githubOauthConfig *oauth2.Config
 	state             string
 }
 
-func NewAuthHandlers(logger *log.Logger, db *gorm.DB, ctx context.Context, dbService *services.DBServices) *AuthHandlers {
+func NewAuthHandlers(logger *log.Logger, db *gorm.DB, ctx context.Context, services *services.Services) *AuthHandlers {
 	authHandlers := &AuthHandlers{
 		Handlers: Handlers{
-			Logger:     logger,
-			Db:         db,
-			Context:    ctx,
-			DBServices: dbService,
+			Logger:    logger,
+			Db:        db,
+			Context:   ctx,
+			Services: services,
 		},
 	}
 	authHandlers.AuthInit()

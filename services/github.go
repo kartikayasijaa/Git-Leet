@@ -10,7 +10,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func createGitHubClient(accessToken string) *github.Client {
+func GetGitHubClient(accessToken string) *github.Client {
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: accessToken},
@@ -22,7 +22,7 @@ func createGitHubClient(accessToken string) *github.Client {
 
 func PushToGithub(submissionDetail structs.SubmissionDetails) error {
 	accessToken := os.Getenv("GITHUB_ACCESS_TOKEN")
-	client := createGitHubClient(accessToken)
+	client := GetGitHubClient(accessToken)
 
 	// Repository information
 	repoOwner := "kartikayasijaa"

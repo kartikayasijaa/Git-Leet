@@ -5,7 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func SubmissionRoute(app fiber.Router, h *Handlers) {
+func PushRoute(app fiber.Router, h *Handlers) {
 	pushRoute := app.Group("/push")
 	pushRoute.Get("/:userId", h.PushLatest)
 }
@@ -13,7 +13,7 @@ func SubmissionRoute(app fiber.Router, h *Handlers) {
 func (h *Handlers) PushLatest(ctx *fiber.Ctx) error {
 	userId := ctx.Params("userId")
 
-	submissions, err := services.GetRecentSubmission(userId)
+	submissions, err := h.Services.LeetcodeService.GetRecentSubmission(userId)
 	if err != nil {
 		return ctx.Status(400).JSON(fiber.Map{
 			"error": err.Error(),
@@ -21,7 +21,7 @@ func (h *Handlers) PushLatest(ctx *fiber.Ctx) error {
 	}
 
 	for _, s := range submissions {
-		submissionDetail, err := services.GetCode(s.Id)
+		submissionDetail, err := h.Services.LeetcodeService.GetCode(s.Id)
 		if err != nil {
 			h.Logger.Println(err)
 			return ctx.Status(400).JSON(fiber.Map{
