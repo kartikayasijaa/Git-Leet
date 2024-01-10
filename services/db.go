@@ -95,3 +95,30 @@ func (h *DBService) UpdateGithub(repoName string, branch string, userID string) 
 
 	return nil
 }
+
+func (h *DBService) GetUser(userId string) (*structs.User, error) {
+	user := new(structs.User)
+	res := h.DB.Where(&structs.User{UserID: userId}).First(&user)
+
+	if res.Error != nil {
+		return &structs.User{}, res.Error
+	}
+	return user, nil
+}
+
+func (h *DBService) UpdatePrevSubmission(userId string, leetcodePrev int32) error {
+	user := &structs.User{
+		LeetcodePrevSubmission: leetcodePrev,
+	}
+	result := h.DB.Where(&structs.User{UserID: userId}).Updates(user)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("no user found with userID")
+	}
+
+	return nil
+}

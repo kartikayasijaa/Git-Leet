@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"gitleet/structs"
-	"os"
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
@@ -20,13 +19,12 @@ func GetGitHubClient(accessToken string) *github.Client {
 	return client
 }
 
-func PushToGithub(submissionDetail structs.SubmissionDetails) error {
-	accessToken := os.Getenv("GITHUB_ACCESS_TOKEN")
+func PushToGithub(accessToken string, owner string, repo string, branch string, submissionDetail structs.SubmissionDetails) error {
 	client := GetGitHubClient(accessToken)
 
 	// Repository information
-	repoOwner := "kartikayasijaa"
-	repoName := "try"
+	repoOwner := owner
+	repoName := repo
 
 	// File information
 	fileName := fmt.Sprintf("%s-%s.cpp", submissionDetail.Question.QuestionId, submissionDetail.Question.QuestionTitle)
@@ -35,7 +33,7 @@ func PushToGithub(submissionDetail structs.SubmissionDetails) error {
 	cppCode := submissionDetail.Code
 
 	// Get the current commit SHA
-	branchName := "main" // or the name of your default branch
+	branchName := branch // or the name of your default branch
 	opts := &github.RepositoryContentGetOptions{
 		Ref: branchName,
 	}
@@ -44,7 +42,7 @@ func PushToGithub(submissionDetail structs.SubmissionDetails) error {
 	// Check if the file exists
 	if err != nil {
 		// File doesn't exist, create a new file
-		commitMessage := "Add new file"
+		commitMessage := fileName
 		createFileOptions := &github.RepositoryContentFileOptions{
 			Message: &commitMessage,
 			Content: []byte(cppCode),
@@ -56,7 +54,7 @@ func PushToGithub(submissionDetail structs.SubmissionDetails) error {
 		}
 	} else {
 		// File exists, get the SHA and update the file
-		commitMessage := "Update file"
+		commitMessage := fileName
 		updateFileOptions := &github.RepositoryContentFileOptions{
 			Message: &commitMessage,
 			Content: []byte(cppCode),

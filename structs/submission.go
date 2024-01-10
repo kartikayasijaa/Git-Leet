@@ -26,3 +26,15 @@ type SubmissionDetailsResponseData struct {
 type SubmissionDetailsResponse struct {
 	Data SubmissionDetailsResponseData `json:"data"`
 }
+
+type SubmissionCalendar struct {
+	SubmissionCalendar string `json:"submissionCalendar"`
+}
+
+type SubmissionCalendarResponse struct {
+	Data struct {
+		MatchedUser struct {
+			UserCalendar SubmissionCalendar `json:"userCalendar"`
+		} `json:"matchedUser"`
+	} `json:"data"`
+}

@@ -2,26 +2,27 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"gitleet/structs"
 	"gitleet/utils"
 	"os"
+
 	"github.com/dustyRAIN/leetcode-api-go/leetcodeapi"
 )
 
 type LeetcodeService struct{}
 
-func (h *LeetcodeService) GetRecentSubmission(LeetcodeUsername string) ([]leetcodeapi.AcSubmission, error) {
+func (h *LeetcodeService) GetRecentSubmission(LeetcodeUsername string, PrevSub int32) ([]leetcodeapi.AcSubmission, error) {
 	totalSubmissions, err := h.GetTotalSubmission(LeetcodeUsername)
 	if err != nil {
 		return nil, err
 	}
-	prevSubmissions := 450
-	newSubmission := int(totalSubmissions) - prevSubmissions
+	newSubmission := totalSubmissions - PrevSub
 	if newSubmission <= 0 {
 		return nil, errors.New("No new submissions found")
 	}
 
-	recentSubmissions, err := leetcodeapi.GetUserRecentAcSubmissions(LeetcodeUsername, newSubmission)
+	recentSubmissions, err := leetcodeapi.GetUserRecentAcSubmissions(LeetcodeUsername, int(newSubmission))
 
 	if err != nil {
 		return nil, err
@@ -59,11 +60,20 @@ func (h *LeetcodeService) GetCode(submissionId string) (structs.SubmissionDetail
 }
 
 func (h *LeetcodeService) GetTotalSubmission(LeetcodeUsername string) (int32, error) {
-	submissions, err := leetcodeapi.GetUserProfileCalendar(LeetcodeUsername)
+	payload := `{
+		"query": "query userProfileCalendar($username: String!, $year: Int) { matchedUser(username: $username) { userCalendar(year: $year) { submissionCalendar } } }",
+		"variables": {
+			"username": "` + LeetcodeUsername + `",
+			"year": "2024"
+		}
+	}`
+	 responseBody :=  new(structs.SubmissionCalendarResponse)
+	err := (&leetcodeapi.Util{}).MakeGraphQLRequest(payload, &responseBody)
 	if err != nil {
+		fmt.Println(err.Error())
 		return 0, err
 	}
-	totalSubmissions, err := utils.GetTotalSubmission(submissions.SubmissionCalendar)
+	totalSubmissions, err := utils.GetTotalSubmission(responseBody.Data.MatchedUser.UserCalendar.SubmissionCalendar)
 	if err != nil {
 		return 0, err
 	}
