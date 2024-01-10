@@ -16,12 +16,13 @@ func main() {
 	logger := config.InitLogger()
 	db, ctx := config.InitDB()
 
-	dbServices := services.DBServicesHandler(db, ctx)
-	h := routes.NewHandlers(logger, db, ctx, dbServices)
+	services := services.InitServices(db, logger, ctx)
+
+	h := routes.NewHandlers(logger, db, ctx, services)
 
 	app := fiber.New()
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "*",
+		AllowOrigins:     "http://localhost:3000",
 		AllowCredentials: true,
 	}))
 	app.Get("/", func(c *fiber.Ctx) error {
@@ -31,8 +32,10 @@ func main() {
 	})
 
 	api := app.Group("/api")
-	routes.SubmissionRoute(api, h)
+	routes.PushRoute(api, h)
 	routes.AuthRoutes(api, h)
+	routes.GithubRoutes(api, h)
+	routes.LeetcodeRoute(api, h)
 
 	PORT := os.Getenv("PORT")
 	err := app.Listen(fmt.Sprintf(":%s", PORT))
