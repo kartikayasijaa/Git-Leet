@@ -1,6 +1,6 @@
 module gitleet
 
-go 1.21
+go 1.21.5
 
 require (
 	github.com/dustyRAIN/leetcode-api-go v1.0.1
