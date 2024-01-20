@@ -5,6 +5,8 @@ func GetOrigins() string {
 		"http://localhost:3000",
 		"https://git-leet-frontend.vercel.app",
 		"http://localhost:5173",
+		"https://gitleet.live",
+		"https://www.gitleet.live",
 	}
 
 	allowedOriginsString := ""
