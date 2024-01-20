@@ -21,8 +21,9 @@ func main() {
 	h := routes.NewHandlers(logger, db, ctx, services)
 
 	app := fiber.New()
+	allowedOrigins := config.GetOrigins()
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:3000",
+		AllowOrigins:     allowedOrigins,
 		AllowCredentials: true,
 	}))
 	app.Get("/", func(c *fiber.Ctx) error {
