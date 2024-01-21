@@ -29,7 +29,6 @@ func (h *DBService) CreateOrUpdateUser(githubUser *github.User) (*structs.User, 
 	if result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, result.Error
 	}
-
 	var user *structs.User
 	// If the user doesn't exist, generate a new UUID
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -45,13 +44,11 @@ func (h *DBService) CreateOrUpdateUser(githubUser *github.User) (*structs.User, 
 		}
 	} else {
 		// If the user already exists, update the existing user with the data from the Assign method
-		user = &structs.User{
-			Email:           githubUser.GetEmail(),
-			Name:            githubUser.GetName(),
-			GithubAvatarURL: githubUser.GetAvatarURL(),
-		}
+		user = existingUser
+		user.Email = githubUser.GetEmail()
+		user.Name = githubUser.GetName()
+		user.GithubAvatarURL = githubUser.GetAvatarURL()
 	}
-
 	// Save the user to the database
 	result = h.DB.Where(&structs.User{GithubUsername: user.GithubUsername}).Assign(user).FirstOrCreate(&user)
 	if result.Error != nil {

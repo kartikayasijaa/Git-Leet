@@ -52,6 +52,7 @@ func (h *Handlers) UpdateLeetcode(ctx *fiber.Ctx) error {
 	return ctx.Status(200).JSON(&fiber.Map{
 		"message":           "Updated Successfully",
 		"leetcode_username": res.LeetcodeUsername,
+		"leetcode_prev_submission": totalSubmissions,
 	})
 
 }
