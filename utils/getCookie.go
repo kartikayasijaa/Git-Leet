@@ -10,11 +10,11 @@ import (
 // GetCookie - returns a cookie
 func GetCookie(data string, name string) *fiber.Cookie {
 	// isProd := false
-	// if os.Getenv("IS_PROD") == "YES" {
+	// if os.Getenv("IS_PROD")github_avatar_url == "YES" {
 	// 	isProd = true
 	// }
 	cookie := new(fiber.Cookie)
-	cookie.HTTPOnly = true
+	// cookie.HTTPOnly = true
 	cookie.Name = name
 	cookie.Value = data
 	cookie.Secure = true
