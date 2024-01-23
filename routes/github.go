@@ -87,6 +87,12 @@ func (h *Handlers) UpdateRepo(ctx *fiber.Ctx) error {
 			"error": "Invalid request body",
 		})
 	}
+	if res.GithubRepoName == "" || res.GithubRepoBranch == "" || res.UserID == "" {
+		return ctx.Status(400).JSON(&fiber.Map{
+			"error": "Invalid request body",
+		})
+	}
+
 	err := h.Services.DBService.UpdateGithub(res.GithubRepoName, res.GithubRepoBranch, res.UserID)
 	if err != nil {
 		h.Logger.Println(err.Error())
