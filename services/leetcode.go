@@ -67,7 +67,7 @@ func (h *LeetcodeService) GetTotalSubmission(LeetcodeUsername string) (int32, er
 			"year": "2024"
 		}
 	}`
-	 responseBody :=  new(structs.SubmissionCalendarResponse)
+	responseBody :=  new(structs.SubmissionCalendarResponse)
 	err := (&leetcodeapi.Util{}).MakeGraphQLRequest(payload, &responseBody)
 	if err != nil {
 		fmt.Println(err.Error())

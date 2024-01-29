@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"gitleet/structs"
+	"gitleet/utils"
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
@@ -26,9 +27,9 @@ func PushToGithub(accessToken string, owner string, repo string, branch string, 
 	repoOwner := owner
 	repoName := repo
 
+	questionTitle := utils.SanitizeFileName(submissionDetail.Question.QuestionTitle)
 	// File information
-	fileName := fmt.Sprintf("%s-%s.cpp", submissionDetail.Question.QuestionId, submissionDetail.Question.QuestionTitle)
-
+	fileName := fmt.Sprintf("%s-%s.cpp", submissionDetail.Question.QuestionId, questionTitle)
 	// C++ code as a string
 	cppCode := submissionDetail.Code
 
@@ -38,7 +39,6 @@ func PushToGithub(accessToken string, owner string, repo string, branch string, 
 		Ref: branchName,
 	}
 	fileInfo, _, _, err := client.Repositories.GetContents(context.Background(), repoOwner, repoName, fileName, opts)
-
 	// Check if the file exists
 	if err != nil {
 		// File doesn't exist, create a new file
